@@ -4,7 +4,7 @@
 define('CT_MAIN_PATH', dirname(__FILE__));
 
 // アプリケーションディレクトリへのパス ////////////////////////////////////
-define('APPLICATION_PATH', CT_MAIN_PATH.'/app');
+define('APPLICATION_PATH', CT_MAIN_PATH.'/app/src');
 
 // ライブラリファイルへのパス //////////////////////////////////////////////
 define('CT_LIBRARY_PATH', CT_MAIN_PATH.'/library');

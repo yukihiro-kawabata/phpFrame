@@ -9,12 +9,12 @@ class route_App {
 
     public $url;
     public $urlArray;
+    public $default_file = 'index';
 
     public $appDirPath = 'app/src/';
 
-    private $controller = 'Controller';
-    private $model      = 'Model';
-    private $view       = 'View';
+    private $controller = 'controller';
+    private $model      = 'model';
 
     private $common = 'common';
 
@@ -28,7 +28,6 @@ class route_App {
 
     /* 
      * route setting
-     * 
      * @return void
      */ 
     public function routeAction()
@@ -46,34 +45,21 @@ class route_App {
     public function createPath(array $urlVal)
     {
         // ホスト名だけでアクセス時
-        if (empty($urlVal[1]))
-        {
-            phpinfo();
-            exit();
-        }
+        if (empty($urlVal[1])) $urlVal[1] = $this->default_file;
 
-        // 必ずPathを通したいファイル
-        // abstruct,error 
-        $this->requeireAction('./' . $this->appDirPath .'abstruct');
-        
+        // controlerの抽象化ファイル
+        $this->requeireAction(APPLICATION_PATH . '/' . 'controller');
         // common
-        $this->requeireAction('./' . $this->appDirPath . $this->common . '/' . $this->controller);
-        $this->requeireAction('./' . $this->appDirPath . $this->common . '/' . $this->model);
-        $this->requeireAction('./' . $this->appDirPath . $this->common . '/' . $this->view);
+        $this->requeireAction(APPLICATION_PATH . '/' . $this->controller . '/' . $this->common);
 
-        // model
-        $this->requeireAction('./' . $this->appDirPath . $urlVal[1] . '/' . $this->model);
-        // view
-        $this->requeireAction('./' . $this->appDirPath . $urlVal[1] . '/' . $this->view);
-        // controller
-        $fileExist = $this->requeireAction('./' . $this->appDirPath. $urlVal[1] . '/' . $this->controller);
+        // controller & model
+        $this->requeireAction(APPLICATION_PATH . '/' . $this->model  . '/' . $urlVal[1]);
+        $fileExist = $this->requeireAction(APPLICATION_PATH . '/' . $this->controller  . '/' . $urlVal[1]);
         $this->execute($urlVal , $fileExist);
-
     }
 
     /*
      * controller に処理を移す
-     * 
      * controller の class はファイル名と同じと想定
      * 
      * @param array $urlVal urlをスラッシュ区切り
@@ -82,29 +68,18 @@ class route_App {
      */
     public function execute(array $urlVal , $controllerFile = false)
     {
-        if (!$controllerFile)
-        {
-            dx('ファイルが見つかりません');
-        }
+        if (!$controllerFile) dx('ファイルが見つかりません');
 
+        $call = 'index';
         if (!array_key_exists('2', $urlVal)) $call = 'index';
-    
-        if (empty($urlVal[2])) 
-        {
-            $call = 'index';        
-        } else {
-            $call = $urlVal[2];
-        }
+        if (!empty($urlVal[2])) $call = $urlVal[2];
         
         // クラス名
         $class = $urlVal[1] . $this->controller;
-
         // インスタンス生成
         $instance = new $class();
-
         // 呼び出し
         $instance->{$call}();
-
     }
 
     /*
@@ -116,18 +91,15 @@ class route_App {
     public function requeireAction(string $dirPath = '')
     {
         $fileExist = false;
-        foreach(glob($dirPath . '/*') as $file)
-        {
-            if(is_file($file))
-            {
+        foreach(glob($dirPath . '/*') as $file) {
+            if(is_file($file)) {
                 $fileExist = true;
                 require_once $file;
             }
         }
 
         // ディレクトリ内にファイルが1つ以上あるかないか
-        if ($fileExist)
-        {
+        if ($fileExist) {
             return true; // ある
         } else {
             return false; // ない

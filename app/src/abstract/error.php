@@ -1,6 +1,6 @@
 <?php
 
-abstract class error_Model extends Exception
+abstract class error_Model // extends Exception
 {
     protected $code;
     protected $message;
